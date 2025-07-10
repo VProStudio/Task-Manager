@@ -1,10 +1,12 @@
 import React from 'react';
-import { StyleSheet } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { TaskDetailScreen } from './screens/TaskDetailScreen';
 import { TaskListScreen } from './screens/TaskListScreen';
 import { AddTaskScreen } from './screens/AddTaskScreen';
+import { StyleSheet } from 'react-native';
+import { colors } from './theme/colors';
 
 const Stack = createStackNavigator();
 
@@ -13,7 +15,19 @@ export default function App() {
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
         <NavigationContainer>
-          <Stack.Navigator initialRouteName="TaskList">
+          <Stack.Navigator
+            initialRouteName="TaskList"
+            screenOptions={{
+              headerStyle: {
+                backgroundColor: colors.primary,
+                height: 80,
+              },
+              headerTintColor: colors.textInverse,
+              headerTitleStyle: {
+                fontWeight: 'bold',
+              },
+            }}
+          >
             <Stack.Screen
               name="TaskList"
               component={TaskListScreen}
@@ -23,6 +37,11 @@ export default function App() {
               name="AddTask"
               component={AddTaskScreen}
               options={{ title: 'New task' }}
+            />
+            <Stack.Screen
+              name="TaskDetail"
+              component={TaskDetailScreen}
+              options={{ title: 'Task Details' }}
             />
           </Stack.Navigator>
         </NavigationContainer>
@@ -34,7 +53,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
+    backgroundColor: colors.background,
   },
 });

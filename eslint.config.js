@@ -35,7 +35,6 @@ export default [
             react: { version: 'detect' },
         },
     },
-    // Конфигурация для Node.js файлов
     {
         files: ['metro.config.js', '*.config.js'],
         languageOptions: {

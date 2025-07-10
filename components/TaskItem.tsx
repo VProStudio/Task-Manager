@@ -1,19 +1,22 @@
 import React from 'react';
+import { colors, spacing, borderRadius, shadows } from '@/theme/colors';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { format } from 'date-fns';
-import type { Task } from '@/types/index';
 import { getStatusColor } from '@/utils/taskUtils';
+import { format } from 'date-fns';
+import type { Task } from '@/utils/types';
 
 interface TaskItemProps {
   task: Task;
   onStatusChange: (taskId: string, newStatus: Task['status']) => void;
   onDelete: (taskId: string) => void;
+  onPress: () => void;
 }
 
 export const TaskItem: React.FC<TaskItemProps> = ({
   task,
   onStatusChange,
   onDelete,
+  onPress,
 }) => {
   const getNextStatus = (currentStatus: Task['status']): Task['status'] => {
     switch (currentStatus) {
@@ -26,43 +29,66 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     }
   };
 
+  const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'completed';
+
   return (
     <View style={styles.taskContainer}>
-      <TouchableOpacity
-        style={styles.listItem}
-        onPress={() => onStatusChange(task.id, getNextStatus(task.status))}
-      >
-        <Text
-          style={[
-            styles.title,
-            {
-              textDecorationLine:
-                task.status === 'completed' ? 'line-through' : 'none',
-              color: task.status === 'cancelled' ? '#999' : '#000',
-            },
-          ]}
-        >
-          {task.title}
-        </Text>
-        {task.description && (
-          <Text style={styles.description}>{task.description}</Text>
-        )}
-        <View style={styles.statusRow}>
+      <TouchableOpacity style={styles.listItem} onPress={onPress}>
+        <View style={styles.header}>
           <Text
-            style={[styles.statusText, { color: getStatusColor(task.status) }]}
+            style={[
+              styles.title,
+              {
+                textDecorationLine: task.status === 'completed' ? 'line-through' : 'none',
+                color: task.status === 'cancelled' ? colors.textSecondary : colors.textPrimary,
+              },
+            ]}
+            numberOfLines={1}
           >
-            {task.status}
+            {task.title}
           </Text>
-          <Text style={styles.dateText}>
-            {format(task.createdAt, 'dd.MM.yyyy HH:mm')}
+          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(task.status) }]}>
+            <Text style={styles.statusText}>{task.status}</Text>
+          </View>
+        </View>
+
+        {task.description && (
+          <Text style={styles.description} numberOfLines={2}>
+            {task.description}
           </Text>
+        )}
+
+        <View style={styles.footer}>
+          <View>
+            <Text style={styles.dateText}>
+              {format(new Date(task.createdAt), 'dd.MM.yyyy')}
+            </Text>
+            {task.dueDate && (
+              <Text style={[styles.dateText, isOverdue && styles.overdueText]}>
+                Due: {format(new Date(task.dueDate), 'dd.MM.yyyy')}
+              </Text>
+            )}
+          </View>
+          {task.location && (
+            <Text style={styles.locationText} numberOfLines={1}>
+              📍 {task.location}
+            </Text>
+          )}
         </View>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.statusButton}
+        onPress={() => onStatusChange(task.id, getNextStatus(task.status))}
+      >
+        <Text style={styles.statusButtonText}>⟲</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity
         style={styles.deleteButton}
         onPress={() => onDelete(task.id)}
       >
-        <Text style={styles.deleteText}>Delete</Text>
+        <Text style={styles.deleteText}>×</Text>
       </TouchableOpacity>
     </View>
   );
@@ -71,45 +97,86 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 const styles = StyleSheet.create({
   taskContainer: {
     flexDirection: 'row',
-    minHeight: 80,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    backgroundColor: colors.surface,
+    marginHorizontal: spacing.sm,
+    marginVertical: spacing.xs,
+    borderRadius: borderRadius.sm,
+    ...shadows.md,
   },
   listItem: {
     flex: 1,
-    padding: 16,
-    justifyContent: 'center',
+    padding: spacing.md,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.sm,
   },
   title: {
     fontSize: 16,
     fontWeight: 'bold',
+    flex: 1,
+    marginRight: spacing.sm,
   },
-  description: {
-    color: '#666',
-  },
-  statusRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 4,
+  statusBadge: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: borderRadius.full,
   },
   statusText: {
-    fontSize: 12,
+    color: colors.textInverse,
+    fontSize: 10,
     fontWeight: 'bold',
     textTransform: 'uppercase',
   },
+  description: {
+    color: colors.textSecondary,
+    fontSize: 14,
+    marginBottom: spacing.sm,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+  },
   dateText: {
-    color: '#999',
+    color: colors.textSecondary,
     fontSize: 12,
   },
-  deleteButton: {
-    backgroundColor: '#ff4444',
+  overdueText: {
+    color: colors.error,
+    fontWeight: 'bold',
+  },
+  locationText: {
+    color: colors.textSecondary,
+    fontSize: 12,
+    flex: 1,
+    textAlign: 'right',
+  },
+  statusButton: {
+    backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
-    width: 80,
+    width: 50,
+
+  },
+  statusButtonText: {
+    color: colors.textInverse,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  deleteButton: {
+    backgroundColor: colors.error,
+    borderTopRightRadius: borderRadius.sm,
+    borderBottomRightRadius: borderRadius.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 50,
   },
   deleteText: {
-    color: 'white',
+    color: colors.textInverse,
+    fontSize: 24,
     fontWeight: 'bold',
   },
 });
