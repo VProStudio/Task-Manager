@@ -20,10 +20,16 @@
         "foregroundImage": "./assets/icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.vpro_studio.toDoForSA"
     },
     "web": {
       "favicon": "./assets/icon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fd710a87-32a1-486f-acd0-74d49fa5e30b"
+      }
     }
   }
 }
