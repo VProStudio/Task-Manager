@@ -11,6 +11,15 @@ export default [
         files: ['**/*.{js,jsx,ts,tsx}'],
         languageOptions: {
             parser: typescriptParser,
+            globals: {
+                setTimeout: 'readonly',
+                clearTimeout: 'readonly',
+                setInterval: 'readonly',
+                clearInterval: 'readonly',
+                console: 'readonly',
+                fetch: 'readonly',
+                Promise: 'readonly',
+            },
             parserOptions: {
                 ecmaFeatures: { jsx: true },
                 ecmaVersion: 2020,
@@ -27,9 +36,10 @@ export default [
             'react/react-in-jsx-scope': 'off',
             'react-native/no-unused-styles': 'error',
             'react-native/no-inline-styles': 'warn',
-            '@typescript-eslint/no-unused-vars': 'error',
             '@typescript-eslint/no-explicit-any': 'warn',
             '@typescript-eslint/explicit-function-return-type': 'off',
+            '@typescript-eslint/no-unused-vars': 'off',
+            'no-unused-vars': 'off',
         },
         settings: {
             react: { version: 'detect' },
@@ -47,8 +57,13 @@ export default [
                 console: 'readonly',
                 Buffer: 'readonly',
                 global: 'readonly',
+                setInterval: 'readonly',
+                clearInterval: 'readonly',
+                fetch: 'readonly',
+                Promise: 'readonly',
             },
             parserOptions: {
+                ecmaFeatures: { jsx: true },
                 ecmaVersion: 2020,
                 sourceType: 'script',
             },

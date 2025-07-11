@@ -1,71 +1,75 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { CurrentLocationButton } from './CurrentLocationButton';
-import { useLocationSearch } from '@/hooks/useLocationSearch';
-import { SuggestionsList } from './SuggestionsList';
-import { View, StyleSheet } from 'react-native';
-import { LocationInput } from './LocationInput';
-import { formatAddress } from '@/utils/taskUtils';
-import type { LocationPickerProps, NominatimSuggestion } from '@/utils/types';
+import { View, StyleSheet, TouchableOpacity, Text } from 'react-native';
+import { LocationModal } from './LocationModal';
+import {
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+  dimensions,
+} from '@/theme/colors';
+import type { LocationPickerProps } from '@/utils/types';
 
 export const LocationPicker: React.FC<LocationPickerProps> = ({
-    value, onLocationChange, placeholder = "Location", hasError = false,
+  value,
+  onLocationChange,
+  placeholder = 'Location',
+  hasError = false,
 }) => {
-    const [showSuggestions, setShowSuggestions] = useState(false);
-    const { suggestions, isSearching, debouncedSearch, setSuggestions } = useLocationSearch();
+  const [showModal, setShowModal] = useState(false);
 
-    useEffect(() => {
-        if (suggestions.length > 0) {
-            setShowSuggestions(true);
-        }
-    }, [suggestions]);
+  const handleSelect = (location: string) => {
+    onLocationChange(location);
+  };
 
-    const handleInputChange = (text: string) => {
-        onLocationChange(text);
-        if (text.length === 0) {
-            setSuggestions([]);
-            setShowSuggestions(false);
-        }
-        debouncedSearch(text);
-    };
+  return (
+    <View style={styles.container}>
+      <TouchableOpacity
+        style={[styles.input, hasError && styles.inputError]}
+        onPress={() => setShowModal(true)}
+      >
+        <Text style={[styles.inputText, !value && styles.placeholder]}>
+          {value || placeholder}
+        </Text>
+      </TouchableOpacity>
 
-    const selectSuggestion = (suggestion: NominatimSuggestion) => {
-        onLocationChange(formatAddress(suggestion.display_name));
-        setShowSuggestions(false);
-        setSuggestions([]);
-    };
+      <LocationModal
+        visible={showModal}
+        initialValue={value}
+        onSelect={handleSelect}
+        onClose={() => setShowModal(false)}
+      />
 
-    const handleInputFocus = () => {
-        if (suggestions.length > 0) {
-            setShowSuggestions(true);
-        }
-    };
-
-    return (
-        <View style={styles.container}>
-            <LocationInput
-                value={value}
-                placeholder={placeholder}
-                hasError={hasError}
-                onChangeText={handleInputChange}
-                onFocus={handleInputFocus}
-            />
-
-            <SuggestionsList
-                suggestions={suggestions}
-                isSearching={isSearching}
-                showSuggestions={showSuggestions}
-                onSelectSuggestion={selectSuggestion}
-            />
-
-            <CurrentLocationButton onLocationChange={onLocationChange} />
-        </View>
-    );
+      <CurrentLocationButton onLocationChange={onLocationChange} />
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        width: '100%',
-        marginBottom: 15,
-        zIndex: 1000,
-    },
+  container: {
+    width: '100%',
+    marginBottom: spacing.md,
+  },
+  input: {
+    height: dimensions.inputHeight,
+    borderWidth: 1,
+    borderColor: colors.textSecondary + '40',
+    borderRadius: borderRadius.md,
+    paddingHorizontal: spacing.md,
+    justifyContent: 'center',
+    backgroundColor: colors.surface,
+    ...shadows.md,
+  },
+  inputError: {
+    borderColor: colors.error,
+    borderWidth: 2,
+  },
+  inputText: {
+    fontSize: 16,
+    color: colors.textPrimary,
+  },
+  placeholder: {
+    color: colors.textSecondary,
+  },
 });

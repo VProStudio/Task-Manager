@@ -5,14 +5,15 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { TaskDetailScreen } from './screens/TaskDetailScreen';
 import { TaskListScreen } from './screens/TaskListScreen';
 import { AddTaskScreen } from './screens/AddTaskScreen';
-import { StyleSheet } from 'react-native';
-import { colors } from './theme/colors';
+import { StatusBar, StyleSheet } from 'react-native';
+import { colors, dimensions } from './theme/colors';
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
     <SafeAreaProvider>
+      <StatusBar backgroundColor={colors.primary} />
       <SafeAreaView style={styles.container}>
         <NavigationContainer>
           <Stack.Navigator
@@ -20,12 +21,14 @@ export default function App() {
             screenOptions={{
               headerStyle: {
                 backgroundColor: colors.primary,
-                height: 80,
+                height: dimensions.headerHeight,
               },
               headerTintColor: colors.textInverse,
               headerTitleStyle: {
                 fontWeight: 'bold',
+                fontSize: 24,
               },
+              headerStatusBarHeight: 0,
             }}
           >
             <Stack.Screen

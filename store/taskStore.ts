@@ -52,10 +52,20 @@ export const useTaskStore = create<TaskStore>()(
         return [...tasks].sort((a, b) => {
           switch (sortBy) {
             case 'date':
-              return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-            case 'status':
-              const statusOrder = { 'in-progress': 0, 'completed': 1, 'cancelled': 2 };
+              return (
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime()
+              );
+            case 'status': {
+
+              // Status priority order: in-progress (0) has highest priority, cancelled (2) lowest
+              const statusOrder = {
+                'in-progress': 0,
+                completed: 1,
+                cancelled: 2,
+              };
               return statusOrder[a.status] - statusOrder[b.status];
+            }
             case 'title':
               return a.title.localeCompare(b.title);
             default:

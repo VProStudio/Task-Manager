@@ -1,5 +1,11 @@
 import React from 'react';
-import { colors, spacing, borderRadius, shadows } from '@/theme/colors';
+import {
+  colors,
+  spacing,
+  borderRadius,
+  shadows,
+  dimensions,
+} from '@/theme/colors';
 import { View, FlatList, StyleSheet } from 'react-native';
 import { SortPicker } from '@/components/SortPicker';
 import { Picker } from '@react-native-picker/picker';
@@ -9,14 +15,13 @@ import { Button } from 'react-native-elements';
 import type { Task } from '@/utils/types';
 
 export const TaskListScreen = ({ navigation }: any) => {
-  const { getSortedTasks, updateTaskStatus, deleteTask, sortBy, setSortBy } = useTaskStore();
+  const { getSortedTasks, updateTaskStatus, deleteTask, sortBy, setSortBy } =
+    useTaskStore();
   const tasks = getSortedTasks();
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <SortPicker sortBy={sortBy} setSortBy={setSortBy} />
-      ),
+      headerRight: () => <SortPicker sortBy={sortBy} setSortBy={setSortBy} />,
     });
   }, [navigation, sortBy, setSortBy]);
 
@@ -55,11 +60,12 @@ const styles = StyleSheet.create({
   list: {
     flex: 1,
     paddingHorizontal: spacing.xs,
+    paddingTop: spacing.sm,
   },
   addButton: {
     margin: spacing.md,
     backgroundColor: colors.primary,
     borderRadius: borderRadius.sm,
-    height: 50,
+    height: dimensions.buttonHeight,
   },
 });

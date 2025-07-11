@@ -7,7 +7,9 @@ import type { Task } from '@/utils/types';
 
 interface TaskItemProps {
   task: Task;
+   
   onStatusChange: (taskId: string, newStatus: Task['status']) => void;
+   
   onDelete: (taskId: string) => void;
   onPress: () => void;
 }
@@ -29,27 +31,39 @@ export const TaskItem: React.FC<TaskItemProps> = ({
     }
   };
 
-  const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && task.status !== 'completed';
+  const isOverdue =
+    task.dueDate &&
+    new Date(task.dueDate) < new Date() &&
+    task.status !== 'completed';
 
   return (
     <View style={styles.taskContainer}>
       <TouchableOpacity style={styles.listItem} onPress={onPress}>
         <View style={styles.header}>
+          <View
+            style={[
+              styles.statusBadge,
+              { backgroundColor: getStatusColor(task.status) },
+            ]}
+          >
+            <Text style={styles.statusText}>{task.status}</Text>
+          </View>
           <Text
             style={[
               styles.title,
               {
-                textDecorationLine: task.status === 'completed' ? 'line-through' : 'none',
-                color: task.status === 'cancelled' ? colors.textSecondary : colors.textPrimary,
+                textDecorationLine:
+                  task.status === 'completed' ? 'line-through' : 'none',
+                color:
+                  task.status === 'cancelled'
+                    ? colors.textSecondary
+                    : colors.textPrimary,
               },
             ]}
             numberOfLines={1}
           >
             {task.title}
           </Text>
-          <View style={[styles.statusBadge, { backgroundColor: getStatusColor(task.status) }]}>
-            <Text style={styles.statusText}>{task.status}</Text>
-          </View>
         </View>
 
         {task.description && (
@@ -59,19 +73,12 @@ export const TaskItem: React.FC<TaskItemProps> = ({
         )}
 
         <View style={styles.footer}>
-          <View>
-            <Text style={styles.dateText}>
-              {format(new Date(task.createdAt), 'dd.MM.yyyy')}
-            </Text>
-            {task.dueDate && (
-              <Text style={[styles.dateText, isOverdue && styles.overdueText]}>
-                Due: {format(new Date(task.dueDate), 'dd.MM.yyyy')}
-              </Text>
-            )}
-          </View>
-          {task.location && (
-            <Text style={styles.locationText} numberOfLines={1}>
-              📍 {task.location}
+          <Text style={styles.dateText}>
+            {format(new Date(task.createdAt), 'dd.MM.yyyy')}
+          </Text>
+          {task.dueDate && (
+            <Text style={[styles.dateText, isOverdue && styles.overdueText]}>
+              Due: {format(new Date(task.dueDate), 'dd.MM.yyyy')}
             </Text>
           )}
         </View>
@@ -105,16 +112,17 @@ const styles = StyleSheet.create({
   },
   listItem: {
     flex: 1,
-    padding: spacing.md,
+    padding: spacing.lg,
+    paddingBottom: spacing.sm,
   },
   header: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginBottom: spacing.sm,
   },
   title: {
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
     flex: 1,
     marginRight: spacing.sm,
@@ -122,6 +130,7 @@ const styles = StyleSheet.create({
   statusBadge: {
     paddingHorizontal: spacing.sm,
     paddingVertical: spacing.xs,
+    marginBottom: spacing.sm,
     borderRadius: borderRadius.full,
   },
   statusText: {
@@ -139,6 +148,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-end',
+    marginTop: spacing.sm,
   },
   dateText: {
     color: colors.textSecondary,
@@ -148,18 +158,11 @@ const styles = StyleSheet.create({
     color: colors.error,
     fontWeight: 'bold',
   },
-  locationText: {
-    color: colors.textSecondary,
-    fontSize: 12,
-    flex: 1,
-    textAlign: 'right',
-  },
   statusButton: {
     backgroundColor: colors.primary,
     justifyContent: 'center',
     alignItems: 'center',
     width: 50,
-
   },
   statusButtonText: {
     color: colors.textInverse,

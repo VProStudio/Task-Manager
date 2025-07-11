@@ -2,12 +2,13 @@ import type { Task } from '@/utils/types';
 import { colors } from '@/theme/colors';
 import * as Location from 'expo-location';
 
+// Race between location request and timeout to prevent hanging
 export const getCurrentLocationWithTimeout = (timeoutMs: number = 10000) => {
   return Promise.race([
     Location.getCurrentPositionAsync({}),
     new Promise<never>((_, reject) =>
       setTimeout(() => reject(new Error('Location timeout')), timeoutMs)
-    )
+    ),
   ]);
 };
 

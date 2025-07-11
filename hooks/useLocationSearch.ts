@@ -3,57 +3,60 @@ import { useUserLocation } from '@/hooks/useUserLocation';
 import type { NominatimSuggestion } from '@/utils/types';
 
 export const useLocationSearch = () => {
-    const [suggestions, setSuggestions] = useState<NominatimSuggestion[]>([]);
-    const [isSearching, setIsSearching] = useState(false);
-    const { userLocation } = useUserLocation();
-    const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [suggestions, setSuggestions] = useState<NominatimSuggestion[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const { userLocation } = useUserLocation();
+  const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const searchAddresses = async (query: string) => {
-        if (query.length < 3) {
-            setSuggestions([]);
-            setIsSearching(false);
-            return;
-        }
+  const searchAddresses = async (query: string) => {
+    if (query.length < 3) {
+      setSuggestions([]);
+      setIsSearching(false);
+      return;
+    }
 
-        setIsSearching(true);
+    setIsSearching(true);
 
-        try {
-            let searchQuery = query;
-            const countryCode = userLocation?.country || 'by';
+    try {
+      let searchQuery = query;
+      const countryCode = userLocation?.country || 'by';
 
-            if (userLocation?.city) {
-                searchQuery = `${query}, ${userLocation.city}`;
-            }
+      if (userLocation?.city) {
+        searchQuery = `${query}, ${userLocation.city}`;
+      }
 
-            await new Promise(resolve => setTimeout(resolve, 1000));
+      // Artificial delay to prevent too frequent API calls to Nominatim
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-            const response = await fetch(
-                `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=5&addressdetails=1&accept-language=ru&countrycodes=${countryCode}`,
-                { headers: { 'User-Agent': 'TodoApp/1.0' } }
-            );
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=5&addressdetails=1&accept-language=ru&countrycodes=${countryCode}`,
+        { headers: { 'User-Agent': 'TodoApp/1.0' } }
+      );
 
-            if (!response.ok) return;
+      if (!response.ok) return;
 
-            const text = await response.text();
-            if (!text || text.startsWith('<')) return;
+      const text = await response.text();
 
-            const data = JSON.parse(text);
-            if (Array.isArray(data)) {
-                setSuggestions(data);
-            }
-        } catch (error) {
-            console.error('Search error:', error);
-        } finally {
-            setIsSearching(false);
-        }
-    };
+      // Check if response is HTML error page instead of JSON
+      if (!text || text.startsWith('<')) return;
 
-    const debouncedSearch = (query: string) => {
-        if (searchTimeoutRef.current) {
-            clearTimeout(searchTimeoutRef.current);
-        }
-        searchTimeoutRef.current = setTimeout(() => searchAddresses(query), 500);
-    };
+      const data = JSON.parse(text);
+      if (Array.isArray(data)) {
+        setSuggestions(data);
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
 
-    return { suggestions, isSearching, debouncedSearch, setSuggestions };
+  const debouncedSearch = (query: string) => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+    searchTimeoutRef.current = setTimeout(() => searchAddresses(query), 500);
+  };
+
+  return { suggestions, isSearching, debouncedSearch, setSuggestions };
 };
